@@ -31,6 +31,7 @@ export interface FuelPump {
   pumpName: string; // e.g., "Pump 1"
   fuelType: FuelType;
   meterReading: number; // Current reading
+  attendantName?: string; // Name of the attendant assigned to this pump
   lastUpdated: string;
   status: "active" | "maintenance" | "inactive";
 }
@@ -55,6 +56,27 @@ export interface ShiftBalance {
   recordedBy: string; // manager ID
   recordedByName?: string;
   createdAt: string;
+}
+
+// Daily Dipping Types (Tank Measurements)
+export interface DailyDipping {
+  id: string;
+  branchId: string;
+  branchName?: string;
+  date: string;
+  gasolineLiters: number;
+  dieselLiters: number;
+  keroseneLiters: number;
+  recordedBy: string; // manager ID
+  recordedByName?: string;
+  createdAt: string;
+}
+
+export interface DailyDippingFormData {
+  date: string;
+  gasolineLiters: number;
+  dieselLiters: number;
+  keroseneLiters: number;
 }
 
 // Expense Types

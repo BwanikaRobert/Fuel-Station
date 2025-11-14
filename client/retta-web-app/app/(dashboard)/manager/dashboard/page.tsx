@@ -8,7 +8,7 @@ import {
   SalesTrendChart,
   FuelVolumeChart,
   QuickActions,
-} from "@/components/manager-dashboard";
+} from "@/components/manager/manager-dashboard";
 
 export default function ManagerDashboard() {
   const { user } = useAuth();

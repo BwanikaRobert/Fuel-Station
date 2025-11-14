@@ -7,7 +7,7 @@ import {
   ExpenseSummaryCards,
   RecordExpenseForm,
   ExpenseHistoryTable,
-} from "@/components/expenses";
+} from "@/components/manager/expenses";
 
 export default function ExpensesPage() {
   const { user } = useAuth();

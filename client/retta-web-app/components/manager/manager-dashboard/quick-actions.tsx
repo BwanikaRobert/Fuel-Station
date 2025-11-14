@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, TrendingUp, Fuel } from "lucide-react";
+import { DollarSign, Fuel } from "lucide-react";
 
 export function QuickActions() {
   const actions = [

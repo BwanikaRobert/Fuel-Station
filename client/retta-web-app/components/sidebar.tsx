@@ -111,6 +111,7 @@ const navItems: NavItem[] = [
 function SidebarContent({
   userNavItems,
   pathname,
+  onClose,
 }: {
   user: User;
   userNavItems: NavItem[];
@@ -135,7 +136,7 @@ function SidebarContent({
           const isActive = pathname === item.href;
 
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} onClick={onClose}>
               <Button
                 variant={isActive ? "secondary" : "ghost"}
                 className={cn(

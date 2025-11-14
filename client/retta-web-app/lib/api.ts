@@ -90,6 +90,7 @@ const mockPumps: FuelPump[] = [
     pumpName: "Pump 1",
     fuelType: "gasoline",
     meterReading: 150000,
+    attendantName: "John Doe",
     lastUpdated: new Date().toISOString(),
     status: "active",
   },
@@ -99,6 +100,7 @@ const mockPumps: FuelPump[] = [
     pumpName: "Pump 2",
     fuelType: "diesel",
     meterReading: 120000,
+    attendantName: "Jane Smith",
     lastUpdated: new Date().toISOString(),
     status: "active",
   },
@@ -108,6 +110,7 @@ const mockPumps: FuelPump[] = [
     pumpName: "Pump 3",
     fuelType: "kerosene",
     meterReading: 80000,
+    attendantName: "Mike Johnson",
     lastUpdated: new Date().toISOString(),
     status: "active",
   },
@@ -117,6 +120,7 @@ const mockPumps: FuelPump[] = [
     pumpName: "Pump 1",
     fuelType: "gasoline",
     meterReading: 200000,
+    attendantName: "Sarah Williams",
     lastUpdated: new Date().toISOString(),
     status: "active",
   },
@@ -126,6 +130,7 @@ const mockPumps: FuelPump[] = [
     pumpName: "Pump 2",
     fuelType: "diesel",
     meterReading: 180000,
+    attendantName: "David Brown",
     lastUpdated: new Date().toISOString(),
     status: "active",
   },
@@ -306,15 +311,18 @@ export async function mockGetDashboardData(
     fuelVolumeSold.gasoline + fuelVolumeSold.diesel + fuelVolumeSold.kerosene;
 
   const revenueByFuelType = {
-    gasoline: relevantShifts
-      .filter((s) => s.fuelType === "gasoline")
-      .reduce((sum, s) => sum + s.totalAmount, 0),
-    diesel: relevantShifts
-      .filter((s) => s.fuelType === "diesel")
-      .reduce((sum, s) => sum + s.totalAmount, 0),
-    kerosene: relevantShifts
-      .filter((s) => s.fuelType === "kerosene")
-      .reduce((sum, s) => sum + s.totalAmount, 0),
+    gasoline:
+      relevantShifts
+        .filter((s) => s.fuelType === "gasoline")
+        .reduce((sum, s) => sum + s.totalAmount, 0) || 16672500, // 2850L * 5850 UGX
+    diesel:
+      relevantShifts
+        .filter((s) => s.fuelType === "diesel")
+        .reduce((sum, s) => sum + s.totalAmount, 0) || 19840000, // 3200L * 6200 UGX
+    kerosene:
+      relevantShifts
+        .filter((s) => s.fuelType === "kerosene")
+        .reduce((sum, s) => sum + s.totalAmount, 0) || 7125000, // 1500L * 4750 UGX
   };
 
   // Generate daily sales for the last 7 days with more realistic data by product

@@ -3,13 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { mockGetFuelDeliveries } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { UpdateFuelPricesDialog } from "@/components/manager-dashboard";
+import { UpdateFuelPricesDialog } from "@/components/manager/manager-dashboard";
 import {
   AcknowledgeFuelDeliveryForm,
-  FuelInventorySummary,
   PendingDeliveriesTable,
   AcknowledgedDeliveriesTable,
-} from "@/components/inventory";
+} from "@/components/manager/shift-balance/inventory";
 
 export default function ManagerInventoryPage() {
   const { user } = useAuth();

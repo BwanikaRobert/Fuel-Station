@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -10,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ClipboardList } from "lucide-react";
 import { ShiftBalance } from "@/lib/types";
 
 interface ShiftBalanceHistoryProps {
@@ -19,10 +26,36 @@ interface ShiftBalanceHistoryProps {
 export function ShiftBalanceHistory({
   shiftBalances,
 }: ShiftBalanceHistoryProps) {
+  if (shiftBalances.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-primary" />
+            <CardTitle>Shift Balance History</CardTitle>
+          </div>
+          <CardDescription>Recent shift balance records</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center h-32 text-center">
+            <ClipboardList className="h-10 w-10 text-muted-foreground/50 mb-3" />
+            <p className="text-muted-foreground">
+              No shift balance records found
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Shift Balance History</CardTitle>
+        <div className="flex items-center gap-2">
+          <ClipboardList className="h-5 w-5 text-primary" />
+          <CardTitle>Shift Balance History</CardTitle>
+        </div>
+        <CardDescription>Recent shift balance records</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="rounded-md border">

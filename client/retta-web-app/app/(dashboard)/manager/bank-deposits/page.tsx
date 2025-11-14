@@ -8,7 +8,7 @@ import {
   RecordBankDepositForm,
   BankDepositHistoryTable,
   RecentBankDeposits,
-} from "@/components/bank-deposits";
+} from "@/components/manager/bank-deposits";
 
 export default function BankDepositsPage() {
   const { user } = useAuth();
