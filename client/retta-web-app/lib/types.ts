@@ -79,6 +79,48 @@ export interface DailyDippingFormData {
   keroseneLiters: number;
 }
 
+// Credit Sale Types
+export type CreditStatus = "unpaid" | "partially_paid" | "settled";
+
+export interface CreditSale {
+  id: string;
+  branchId: string;
+  branchName?: string;
+  debtorName: string;
+  debtorPhone?: string;
+  fuelType: FuelType;
+  quantityLiters: number;
+  pricePerLiter: number;
+  totalAmount: number;
+  amountPaid: number;
+  amountRemaining: number;
+  status: CreditStatus;
+  saleDate: string;
+  dueDate?: string;
+  recordedBy: string;
+  recordedByName?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface CreditSaleFormData {
+  debtorName: string;
+  debtorPhone?: string;
+  fuelType: FuelType;
+  quantityLiters: number;
+  pricePerLiter: number;
+  saleDate: string;
+  dueDate?: string;
+  notes?: string;
+}
+
+export interface CreditPaymentFormData {
+  creditSaleId: string;
+  amountPaid: number;
+  paymentDate: string;
+  notes?: string;
+}
+
 // Expense Types
 export interface Expense {
   id: string;

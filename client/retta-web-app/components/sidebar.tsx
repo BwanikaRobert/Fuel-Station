@@ -22,6 +22,7 @@ import {
   Package,
   LucideIcon,
   Landmark,
+  IdCard,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import type { User } from "@/lib/types";
@@ -77,6 +78,12 @@ const navItems: NavItem[] = [
     title: "Expenses",
     href: "/manager/expenses",
     icon: DollarSign,
+    roles: ["manager"],
+  },
+  {
+    title: "Credits",
+    href: "/manager/credits",
+    icon: IdCard,
     roles: ["manager"],
   },
   {

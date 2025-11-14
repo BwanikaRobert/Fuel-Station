@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { mockGetPumps, mockGetShiftBalances } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
+import { DailyDipping } from "@/lib/types";
 import {
   RecordShiftBalanceForm,
   RecordDailyDippingForm,
@@ -24,7 +25,7 @@ export default function ShiftBalancingPage() {
   });
 
   // Mock daily dippings data - replace with actual query
-  const dailyDippings = [];
+  const dailyDippings: DailyDipping[] = [];
 
   if (pumpsLoading) {
     return (
@@ -42,7 +43,7 @@ export default function ShiftBalancingPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Shift Balancing & Inventory
+          Shift Balancing & Stock
         </h1>
         <p className="text-muted-foreground">
           Record shift balances and daily tank measurements
