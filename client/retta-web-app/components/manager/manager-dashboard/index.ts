@@ -3,3 +3,4 @@ export { SalesTrendChart } from "./sales-trend-chart";
 export { FuelVolumeChart } from "./fuel-volume-chart";
 export { QuickActions } from "./quick-actions";
 export { UpdateFuelPricesDialog } from "./update-fuel-prices-dialog";
+export { FuelPricesHeader } from "./fuel-prices-header";

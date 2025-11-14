@@ -8,6 +8,7 @@ import {
   SalesTrendChart,
   FuelVolumeChart,
   QuickActions,
+  FuelPricesHeader,
 } from "@/components/manager/manager-dashboard";
 
 export default function ManagerDashboard() {
@@ -16,6 +17,18 @@ export default function ManagerDashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["dashboard", "manager", user?.branchId],
     queryFn: () => mockGetDashboardData("manager", user?.branchId),
+  });
+
+  // Mock credit data - replace with actual query
+  const { data: creditsData } = useQuery({
+    queryKey: ["credits", "summary", user?.branchId],
+    queryFn: async () => {
+      // This would be a real API call
+      // For now, return mock data matching what we have in credits page
+      return {
+        totalOutstanding: 689000, // John (275k) + Sarah (320k) + Mary (94k)
+      };
+    },
   });
 
   if (isLoading || !stats) {
@@ -34,31 +47,11 @@ export default function ManagerDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <div className="mt-4 flex gap-4 flex-wrap items-center">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-              Petrol:
-            </span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-              UGX {stats.currentFuelPrices.gasoline.toLocaleString()}/L
-            </span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800">
-            <span className="text-sm font-medium text-green-900 dark:text-green-100">
-              Diesel:
-            </span>
-            <span className="text-lg font-bold text-green-600 dark:text-green-400">
-              UGX {stats.currentFuelPrices.diesel.toLocaleString()}/L
-            </span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
-            <span className="text-sm font-medium text-amber-900 dark:text-amber-100">
-              Kerosene:
-            </span>
-            <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
-              UGX {stats.currentFuelPrices.kerosene.toLocaleString()}/L
-            </span>
-          </div>
+        <div className="mt-4">
+          <FuelPricesHeader
+            prices={stats.currentFuelPrices}
+            totalCreditsAvailable={creditsData?.totalOutstanding || 0}
+          />
         </div>
       </div>
 
