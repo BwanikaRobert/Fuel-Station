@@ -134,7 +134,9 @@ export interface DashboardStats {
   };
   dailySales: Array<{
     date: string;
-    amount: number;
+    petrol: number;
+    diesel: number;
+    kerosene: number;
   }>;
   expensesByCategory: Array<{
     category: string;

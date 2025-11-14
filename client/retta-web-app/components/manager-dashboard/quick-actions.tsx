@@ -1,27 +1,21 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, Fuel } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, TrendingUp, Fuel } from "lucide-react";
 
 export function QuickActions() {
   const actions = [
     {
-      href: '/manager/shift-balancing',
+      href: "/manager/shift-balancing",
       icon: Fuel,
-      title: 'Record Shift Balance',
-      description: 'Enter pump readings',
+      title: "Record Shift Balance",
+      description: "Enter pump readings",
     },
     {
-      href: '/manager/expenses',
+      href: "/manager/expenses",
       icon: DollarSign,
-      title: 'Record Expense',
-      description: 'Add new expense',
-    },
-    {
-      href: '/manager/fuel-receipts',
-      icon: TrendingUp,
-      title: 'Fuel Receipts',
-      description: 'Acknowledge deliveries',
+      title: "Record Expense",
+      description: "Add new expense",
     },
   ];
 

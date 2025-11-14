@@ -21,6 +21,7 @@ import {
   BarChart3,
   Package,
   LucideIcon,
+  Landmark,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import type { User } from "@/lib/types";
@@ -81,7 +82,7 @@ const navItems: NavItem[] = [
   {
     title: "Bank Deposits",
     href: "/manager/bank-deposits",
-    icon: PiggyBank,
+    icon: Landmark,
     roles: ["manager"],
   },
   {
@@ -108,13 +109,8 @@ const navItems: NavItem[] = [
 
 // Separate component for sidebar content
 function SidebarContent({
-  user,
   userNavItems,
   pathname,
-  theme,
-  toggleTheme,
-  handleLogout,
-  onClose,
 }: {
   user: User;
   userNavItems: NavItem[];
@@ -130,16 +126,6 @@ function SidebarContent({
       <div className="flex h-16 items-center border-b px-6">
         <Fuel className="h-6 w-6 text-primary" />
         <span className="ml-2 text-lg font-bold">Fuel Station</span>
-        {onClose && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto lg:hidden"
-            onClick={onClose}
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        )}
       </div>
 
       {/* Navigation */}
@@ -153,11 +139,11 @@ function SidebarContent({
               <Button
                 variant={isActive ? "secondary" : "ghost"}
                 className={cn(
-                  "w-full justify-start",
+                  "w-full justify-start h-12 text-base",
                   isActive && "bg-secondary"
                 )}
               >
-                <Icon className="mr-2 h-4 w-4" />
+                <Icon className="mr-3 h-5 w-5" />
                 {item.title}
               </Button>
             </Link>

@@ -16,13 +16,8 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import {
-  Settings,
-  CheckCircle2,
-  Recycle,
-  LucideRecycle,
-  ArrowUpDown,
-} from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
+import { toast } from "sonner";
 
 const fuelPricesSchema = z.object({
   gasoline: z.number().min(1, "Petrol price must be greater than 0"),
@@ -57,7 +52,6 @@ export function UpdateFuelPricesDialog({
   branchId,
 }: UpdateFuelPricesDialogProps) {
   const [open, setOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const queryClient = useQueryClient();
 
   const {
@@ -75,11 +69,15 @@ export function UpdateFuelPricesDialog({
       mockUpdateFuelPrices(data, branchId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      setSuccessMessage("Fuel prices updated successfully!");
-      setTimeout(() => {
-        setSuccessMessage("");
-        setOpen(false);
-      }, 2000);
+      toast.success("Fuel prices updated successfully!", {
+        description: "The new prices are now active.",
+      });
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast.error("Failed to update fuel prices", {
+        description: error.message || "Please try again later.",
+      });
     },
   });
 
@@ -89,7 +87,6 @@ export function UpdateFuelPricesDialog({
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      setSuccessMessage("");
       reset(currentPrices);
     }
     setOpen(newOpen);
@@ -110,17 +107,6 @@ export function UpdateFuelPricesDialog({
             Set new selling prices for fuel types. Prices are in UGX per liter.
           </DialogDescription>
         </DialogHeader>
-
-        {successMessage && (
-          <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800">
-            <div className="flex items-center">
-              <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-500 mr-2" />
-              <p className="text-sm text-green-600 dark:text-green-500 font-medium">
-                {successMessage}
-              </p>
-            </div>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">

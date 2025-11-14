@@ -287,15 +287,18 @@ export async function mockGetDashboardData(
   );
 
   const fuelVolumeSold = {
-    gasoline: relevantShifts
-      .filter((s) => s.fuelType === "gasoline")
-      .reduce((sum, s) => sum + s.volumeSold, 0),
-    diesel: relevantShifts
-      .filter((s) => s.fuelType === "diesel")
-      .reduce((sum, s) => sum + s.volumeSold, 0),
-    kerosene: relevantShifts
-      .filter((s) => s.fuelType === "kerosene")
-      .reduce((sum, s) => sum + s.volumeSold, 0),
+    gasoline:
+      relevantShifts
+        .filter((s) => s.fuelType === "gasoline")
+        .reduce((sum, s) => sum + s.volumeSold, 0) || 2850,
+    diesel:
+      relevantShifts
+        .filter((s) => s.fuelType === "diesel")
+        .reduce((sum, s) => sum + s.volumeSold, 0) || 3200,
+    kerosene:
+      relevantShifts
+        .filter((s) => s.fuelType === "kerosene")
+        .reduce((sum, s) => sum + s.volumeSold, 0) || 1500,
     total: 0,
   };
 
@@ -314,13 +317,24 @@ export async function mockGetDashboardData(
       .reduce((sum, s) => sum + s.totalAmount, 0),
   };
 
-  // Generate daily sales for the last 7 days
+  // Generate daily sales for the last 7 days with more realistic data by product
   const dailySales = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - i));
+
+    // Create varying sales amounts for each product with slight trends
+    const petrolBase = 5000000; // Base petrol sales in UGX
+    const dieselBase = 4500000; // Base diesel sales in UGX
+    const keroseneBase = 2500000; // Base kerosene sales in UGX
+
     return {
       date: date.toISOString().split("T")[0],
-      amount: Math.floor(Math.random() * 5000) + 2000,
+      petrol:
+        petrolBase + Math.floor(Math.random() * 1000000) - 500000 + i * 100000,
+      diesel:
+        dieselBase + Math.floor(Math.random() * 800000) - 400000 + i * 80000,
+      kerosene:
+        keroseneBase + Math.floor(Math.random() * 500000) - 250000 + i * 50000,
     };
   });
 

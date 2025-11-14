@@ -1,7 +1,7 @@
 "use client";
 
 import { StatCard } from "@/components/stat-card";
-import { DollarSign, TrendingUp, Fuel, Calendar } from "lucide-react";
+import { DollarSign, Droplet, Fuel, Flame } from "lucide-react";
 import { DashboardStats } from "@/lib/types";
 
 interface DashboardStatsGridProps {
@@ -9,37 +9,41 @@ interface DashboardStatsGridProps {
 }
 
 export function DashboardStatsGrid({ stats }: DashboardStatsGridProps) {
+  // Calculate total sales from all fuel types
+  const totalNetSales =
+    stats.revenueByFuelType.gasoline +
+    stats.revenueByFuelType.diesel +
+    stats.revenueByFuelType.kerosene;
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
-        title="Today's Revenue"
-        value={`UGX ${stats.totalRevenue.toLocaleString()}`}
-        description="Sales for today"
+        title="Total Net Sales"
+        value={`UGX ${totalNetSales.toLocaleString()}`}
+        description="Last shift sales"
         icon={DollarSign}
         trend={{ value: 8.2, isPositive: true }}
       />
       <StatCard
-        title="Today's Expenses"
-        value={`UGX ${stats.totalExpenses.toLocaleString()}`}
-        description="Expenses recorded today"
-        icon={TrendingUp}
+        title="Petrol Sales"
+        value={`UGX ${stats.revenueByFuelType.gasoline.toLocaleString()}`}
+        description={`${stats.fuelVolumeSold.gasoline.toLocaleString()} L sold`}
+        icon={Droplet}
+        iconColor="text-blue-600 dark:text-blue-400"
       />
       <StatCard
-        title="Fuel Sold Today"
-        value={`${stats.fuelVolumeSold.total.toLocaleString()} L`}
-        description="All fuel types"
+        title="Diesel Sales"
+        value={`UGX ${stats.revenueByFuelType.diesel.toLocaleString()}`}
+        description={`${stats.fuelVolumeSold.diesel.toLocaleString()} L sold`}
         icon={Fuel}
+        iconColor="text-green-600 dark:text-green-400"
       />
       <StatCard
-        title="Date"
-        value={new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        })}
-        description={new Date().toLocaleDateString("en-US", {
-          weekday: "long",
-        })}
-        icon={Calendar}
+        title="Kerosene Sales"
+        value={`UGX ${stats.revenueByFuelType.kerosene.toLocaleString()}`}
+        description={`${stats.fuelVolumeSold.kerosene.toLocaleString()} L sold`}
+        icon={Flame}
+        iconColor="text-amber-600 dark:text-amber-400"
       />
     </div>
   );

@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/lib/auth-context';
-import { ThemeProvider } from 'next-themes';
-import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/sonner";
+import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -26,7 +27,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableSystem
         disableTransitionOnChange
       >
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
