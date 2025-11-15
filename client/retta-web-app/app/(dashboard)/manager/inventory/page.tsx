@@ -8,7 +8,7 @@ import {
   AcknowledgeFuelDeliveryForm,
   PendingDeliveriesTable,
   AcknowledgedDeliveriesTable,
-} from "@/components/manager/shift-balance/inventory";
+} from "@/components/manager/inventory";
 
 export default function ManagerInventoryPage() {
   const { user } = useAuth();

@@ -5,6 +5,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useAuth } from "@/lib/auth-context";
 import { useUIStore } from "@/lib/store";
@@ -23,9 +29,13 @@ import {
   LucideIcon,
   Landmark,
   IdCard,
+  Settings,
+  User2,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import type { User } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { mockGetBranches } from "@/lib/api";
 
 interface NavItem {
   title: string;
@@ -43,21 +53,22 @@ const navItems: NavItem[] = [
     roles: ["admin"],
   },
   {
-    title: "Branches",
-    href: "/admin/branches",
-    icon: Building2,
-    roles: ["admin"],
-  },
-  {
     title: "Fuel Deliveries",
     href: "/admin/fuel-deliveries",
     icon: TruckIcon,
     roles: ["admin"],
   },
   {
-    title: "Reports",
-    href: "/admin/reports",
-    icon: FileText,
+    title: "Users & Branches",
+    href: "/admin/users",
+    icon: User2,
+    roles: ["admin"],
+  },
+
+  {
+    title: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
     roles: ["admin"],
   },
 
@@ -116,6 +127,7 @@ const navItems: NavItem[] = [
 
 // Separate component for sidebar content
 function SidebarContent({
+  user,
   userNavItems,
   pathname,
   onClose,
@@ -128,6 +140,12 @@ function SidebarContent({
   handleLogout: () => void;
   onClose?: () => void;
 }) {
+  const { data: branches } = useQuery({
+    queryKey: ["branches"],
+    queryFn: mockGetBranches,
+    enabled: user.role === "admin",
+  });
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -157,6 +175,108 @@ function SidebarContent({
             </Link>
           );
         })}
+
+        {/* Admin Reports Accordion */}
+        {user.role === "admin" && (
+          <div className="mt-2">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="reports" className="border-none">
+                <AccordionTrigger className="hover:no-underline py-3 px-3 hover:bg-accent rounded-md">
+                  <div className="flex items-center">
+                    <FileText className="mr-3 h-5 w-5" />
+                    <span className="text-base font-medium">Reports</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pl-4 pb-2 space-y-1">
+                  <Link href="/admin/reports/sales" onClick={onClose}>
+                    <Button
+                      variant={
+                        pathname === "/admin/reports/sales"
+                          ? "secondary"
+                          : "ghost"
+                      }
+                      className={cn(
+                        "w-full justify-start text-sm h-10",
+                        pathname === "/admin/reports/sales" && "bg-secondary"
+                      )}
+                    >
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Sales Reports
+                    </Button>
+                  </Link>
+                  <Link href="/admin/reports/expenses" onClick={onClose}>
+                    <Button
+                      variant={
+                        pathname === "/admin/reports/expenses"
+                          ? "secondary"
+                          : "ghost"
+                      }
+                      className={cn(
+                        "w-full justify-start text-sm h-10",
+                        pathname === "/admin/reports/expenses" && "bg-secondary"
+                      )}
+                    >
+                      <DollarSign className="mr-2 h-4 w-4" />
+                      Expenses Reports
+                    </Button>
+                  </Link>
+                  <Link href="/admin/reports/credits" onClick={onClose}>
+                    <Button
+                      variant={
+                        pathname === "/admin/reports/credits"
+                          ? "secondary"
+                          : "ghost"
+                      }
+                      className={cn(
+                        "w-full justify-start text-sm h-10",
+                        pathname === "/admin/reports/credits" && "bg-secondary"
+                      )}
+                    >
+                      <IdCard className="mr-2 h-4 w-4" />
+                      Credits Reports
+                    </Button>
+                  </Link>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
+
+        {/* Admin Branches Accordion */}
+        {user.role === "admin" && branches && branches.length > 0 && (
+          <div className="mt-2">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="branches" className="border-none">
+                <AccordionTrigger className="hover:no-underline py-3 px-3 hover:bg-accent rounded-md">
+                  <div className="flex items-center">
+                    <Building2 className="mr-3 h-5 w-5" />
+                    <span className="text-base font-medium">Branches</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pl-4 pb-2 space-y-1">
+                  {branches.map((branch) => {
+                    const branchHref = `/admin/branches/${branch.id}`;
+                    const isBranchActive = pathname.startsWith(branchHref);
+
+                    return (
+                      <Link key={branch.id} href={branchHref} onClick={onClose}>
+                        <Button
+                          variant={isBranchActive ? "secondary" : "ghost"}
+                          className={cn(
+                            "w-full justify-start text-sm h-10",
+                            isBranchActive && "bg-secondary"
+                          )}
+                        >
+                          {branch.name}
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        )}
       </nav>
     </div>
   );

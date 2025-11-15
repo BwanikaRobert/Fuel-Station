@@ -480,6 +480,7 @@ export async function mockCreateShiftBalance(
     pumpId: string;
     shiftType: "morning" | "evening";
     closingMeter: number;
+    pricePerLiter?: number;
     date: string;
   },
   userId: string,
@@ -495,8 +496,14 @@ export async function mockCreateShiftBalance(
 
   const openingMeter = pump.meterReading;
   const volumeSold = data.closingMeter - openingMeter;
+  // Use provided price or fallback to default prices
   const pricePerLiter =
-    pump.fuelType === "gasoline" ? 1.5 : pump.fuelType === "diesel" ? 1.4 : 1.3;
+    data.pricePerLiter ||
+    (pump.fuelType === "gasoline"
+      ? 1.5
+      : pump.fuelType === "diesel"
+      ? 1.4
+      : 1.3);
 
   const newShiftBalance: ShiftBalance = {
     id: `shift-${Date.now()}`,

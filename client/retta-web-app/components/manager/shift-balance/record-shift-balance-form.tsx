@@ -35,12 +35,18 @@ import { FuelPump, ShiftType } from "@/lib/types";
 interface PumpReading {
   pumpId: string;
   closingMeter: number;
+  pricePerLiter: number;
 }
 
 interface RecordShiftBalanceFormProps {
   pumps: FuelPump[];
   userId: string;
   branchId: string;
+  fuelPrices?: {
+    gasoline: number;
+    diesel: number;
+    kerosene: number;
+  };
 }
 
 const fuelTypeLabels: Record<string, string> = {
@@ -53,6 +59,7 @@ export function RecordShiftBalanceForm({
   pumps,
   userId,
   branchId,
+  fuelPrices = { gasoline: 5500, diesel: 5200, kerosene: 4800 },
 }: RecordShiftBalanceFormProps) {
   const [shiftType, setShiftType] = useState<ShiftType>("morning");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -68,6 +75,7 @@ export function RecordShiftBalanceForm({
             pumpId: reading.pumpId,
             shiftType,
             closingMeter: reading.closingMeter,
+            pricePerLiter: reading.pricePerLiter,
             date,
           },
           userId,
@@ -95,10 +103,14 @@ export function RecordShiftBalanceForm({
   const handleSubmit = () => {
     const readings: PumpReading[] = Object.entries(pumpReadings)
       .filter(([_, value]) => value > 0)
-      .map(([pumpId, closingMeter]) => ({
-        pumpId,
-        closingMeter,
-      }));
+      .map(([pumpId, closingMeter]) => {
+        const pump = pumps.find((p) => p.id === pumpId);
+        return {
+          pumpId,
+          closingMeter,
+          pricePerLiter: fuelPrices[pump?.fuelType || "gasoline"],
+        };
+      });
 
     if (readings.length === 0) {
       toast.error("No readings entered", {
@@ -123,6 +135,18 @@ export function RecordShiftBalanceForm({
     const closingMeter = pumpReadings[pump.id] || 0;
     if (closingMeter <= 0) return 0;
     return Math.max(0, closingMeter - pump.meterReading);
+  };
+
+  const calculateSalesAmount = (pump: FuelPump) => {
+    const volumeSold = calculateVolumeSold(pump);
+    const price = fuelPrices[pump.fuelType] || 0;
+    return volumeSold * price;
+  };
+
+  const calculateTotalSales = () => {
+    return pumps.reduce((total, pump) => {
+      return total + calculateSalesAmount(pump);
+    }, 0);
   };
 
   return (
@@ -162,24 +186,25 @@ export function RecordShiftBalanceForm({
           </div>
         </div>
 
-        {/* Pumps Table */}
-        <div className="border rounded-lg">
+        {/* Desktop Table View */}
+        <div className="hidden md:block border rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Pump</TableHead>
                 <TableHead>Fuel Type</TableHead>
-                <TableHead>Attendant</TableHead>
+                <TableHead className="text-right">Price/L (UGX)</TableHead>
                 <TableHead className="text-right">Opening Meter (L)</TableHead>
                 <TableHead className="text-right">Closing Meter (L)</TableHead>
                 <TableHead className="text-right">Volume Sold (L)</TableHead>
+                <TableHead className="text-right">Sales Amount (UGX)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {pumps.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="text-center text-muted-foreground"
                   >
                     No pumps available
@@ -196,12 +221,8 @@ export function RecordShiftBalanceForm({
                         {fuelTypeLabels[pump.fuelType]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-sm">
-                      {pump.attendantName || (
-                        <span className="text-muted-foreground">
-                          Not assigned
-                        </span>
-                      )}
+                    <TableCell className="text-right font-medium text-primary">
+                      {fuelPrices[pump.fuelType].toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {pump.meterReading.toLocaleString()}
@@ -225,11 +246,157 @@ export function RecordShiftBalanceForm({
                         <span className="text-muted-foreground">-</span>
                       )}
                     </TableCell>
+                    <TableCell className="text-right font-bold">
+                      {calculateSalesAmount(pump) > 0 ? (
+                        <span className="text-green-600">
+                          {calculateSalesAmount(pump).toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
+            {pumps.length > 0 && (
+              <tfoot className="bg-muted/50 font-semibold">
+                <TableRow>
+                  <TableCell colSpan={5} className="text-right">
+                    Total Sales:
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {pumps
+                      .reduce(
+                        (total, pump) => total + calculateVolumeSold(pump),
+                        0
+                      )
+                      .toLocaleString()}{" "}
+                    L
+                  </TableCell>
+                  <TableCell className="text-right text-green-600 text-lg font-bold">
+                    UGX {calculateTotalSales().toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              </tfoot>
+            )}
           </Table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
+          {pumps.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No pumps available
+            </div>
+          ) : (
+            <>
+              {pumps.map((pump) => (
+                <Card key={pump.id} className="p-4">
+                  <div className="space-y-3">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div className="font-semibold text-base">
+                        {pump.pumpName}
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {fuelTypeLabels[pump.fuelType]}
+                      </Badge>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex justify-between items-center py-2 border-b">
+                      <span className="text-xs text-muted-foreground">
+                        Price per Liter
+                      </span>
+                      <span className="font-medium text-primary text-sm">
+                        UGX {fuelPrices[pump.fuelType].toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Opening Meter */}
+                    <div className="flex justify-between items-center py-2 border-b">
+                      <span className="text-xs text-muted-foreground">
+                        Opening Meter
+                      </span>
+                      <span className="font-medium text-sm">
+                        {pump.meterReading.toLocaleString()} L
+                      </span>
+                    </div>
+
+                    {/* Closing Meter Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor={`closing-${pump.id}`} className="text-xs">
+                        Closing Meter (L)
+                      </Label>
+                      <Input
+                        id={`closing-${pump.id}`}
+                        type="number"
+                        step="0.01"
+                        placeholder="Enter closing meter"
+                        value={pumpReadings[pump.id] || ""}
+                        onChange={(e) => updateReading(pump.id, e.target.value)}
+                        className="text-right text-base"
+                      />
+                    </div>
+
+                    {/* Calculated Values */}
+                    {pumpReadings[pump.id] && calculateVolumeSold(pump) > 0 && (
+                      <div className="pt-3 mt-3 border-t space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium">
+                            Volume Sold
+                          </span>
+                          <span className="text-primary font-semibold text-sm">
+                            {calculateVolumeSold(pump).toLocaleString()} L
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium">
+                            Sales Amount
+                          </span>
+                          <span className="text-green-600 font-bold text-base">
+                            UGX {calculateSalesAmount(pump).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              ))}
+
+              {/* Total Sales Card */}
+              {pumps.length > 0 && calculateTotalSales() > 0 && (
+                <Card className="p-4 bg-muted/50">
+                  <div className="space-y-3">
+                    <div className="text-xs font-medium text-muted-foreground">
+                      TOTAL SALES
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-sm">Total Volume</span>
+                      <span className="text-primary font-semibold text-base">
+                        {pumps
+                          .reduce(
+                            (total, pump) => total + calculateVolumeSold(pump),
+                            0
+                          )
+                          .toLocaleString()}{" "}
+                        L
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <span className="font-semibold text-sm">
+                        Total Amount
+                      </span>
+                      <span className="text-green-600 font-bold text-xl">
+                        UGX {calculateTotalSales().toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </>
+          )}
         </div>
 
         {/* Submit Button */}

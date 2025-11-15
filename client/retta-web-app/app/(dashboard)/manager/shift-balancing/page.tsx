@@ -1,7 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { mockGetPumps, mockGetShiftBalances } from "@/lib/api";
+import {
+  mockGetPumps,
+  mockGetShiftBalances,
+  mockGetDashboardData,
+} from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { DailyDipping } from "@/lib/types";
 import {
@@ -22,6 +26,11 @@ export default function ShiftBalancingPage() {
   const { data: shiftBalances } = useQuery({
     queryKey: ["shift-balances", user?.branchId],
     queryFn: () => mockGetShiftBalances(user?.branchId),
+  });
+
+  const { data: dashboardData } = useQuery({
+    queryKey: ["dashboard", "manager", user?.branchId],
+    queryFn: () => mockGetDashboardData("manager", user?.branchId),
   });
 
   // Mock daily dippings data - replace with actual query
@@ -50,18 +59,16 @@ export default function ShiftBalancingPage() {
         </p>
       </div>
 
-      {/* Forms Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Shift Balance Form */}
-        <RecordShiftBalanceForm
-          pumps={pumps || []}
-          userId={user!.id}
-          branchId={user!.branchId!}
-        />
+      {/* Daily Dipping Form */}
+      <RecordDailyDippingForm userId={user!.id} branchId={user!.branchId!} />
 
-        {/* Daily Dipping Form */}
-        <RecordDailyDippingForm userId={user!.id} branchId={user!.branchId!} />
-      </div>
+      {/* Shift Balance Form */}
+      <RecordShiftBalanceForm
+        pumps={pumps || []}
+        userId={user!.id}
+        branchId={user!.branchId!}
+        fuelPrices={dashboardData?.currentFuelPrices}
+      />
 
       {/* History Tables Grid */}
       <div className="grid gap-6 lg:grid-cols-2">

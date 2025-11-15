@@ -16,7 +16,7 @@ import { Plus } from "lucide-react";
 import {
   CreateDeliveryForm,
   DeliveriesTable,
-} from "@/components/fuel-deliveries";
+} from "@/components/admin-dashboard/fuel-deliveries";
 
 export default function FuelDeliveriesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -47,10 +47,7 @@ export default function FuelDeliveriesPage() {
       {/* Header with Action Button */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Fuel Deliveries</h1>
-          <p className="text-muted-foreground">
-            Manage fuel delivery notes to branches
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Deliveries</h1>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
