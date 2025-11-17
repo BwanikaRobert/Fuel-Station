@@ -2,18 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { mockGetDashboardData } from "@/lib/api";
-import { useAuth } from "@/lib/auth-context";
 import {
   AdminStatsGrid,
   DailySalesChart,
   RevenueByFuelChart,
   BranchesSalesChart,
-  ExpensesByCategoryChart,
 } from "@/components/admin-dashboard";
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
-
   const { data: stats, isLoading } = useQuery({
     queryKey: ["dashboard", "admin"],
     queryFn: () => mockGetDashboardData("admin"),
@@ -41,10 +37,8 @@ export default function AdminDashboard() {
         <BranchesSalesChart branches={stats.topPerformingBranches} />
       </div>
 
-      {/* Bottom Row */}
+      {/* Daily Sales Chart */}
       <DailySalesChart branches={stats.topPerformingBranches} />
-
-      <ExpensesByCategoryChart data={stats.expensesByCategory} />
     </div>
   );
 }

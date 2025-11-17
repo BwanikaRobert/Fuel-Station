@@ -2,11 +2,17 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { mockGetDashboardData } from "@/lib/api";
 import {
   SalesFilters,
   SalesSummaryCard,
   SalesTable,
 } from "@/components/admin-dashboard/reports/sales";
+import {
+  BranchesSalesChart,
+  RevenueByFuelChart,
+} from "@/components/admin-dashboard";
 
 // Mock data - replace with actual API call
 const mockSales = [
@@ -77,6 +83,12 @@ export default function SalesReportsPage() {
 function SalesReportsContent() {
   const searchParams = useSearchParams();
 
+  // Fetch dashboard data for charts
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard", "admin"],
+    queryFn: () => mockGetDashboardData("admin"),
+  });
+
   // Get filter values from URL
   const selectedBranch = searchParams.get("branch") || "all";
   const selectedFuelType = searchParams.get("fuelType") || "all";
@@ -134,6 +146,14 @@ function SalesReportsContent() {
 
       {/* Sales Table */}
       <SalesTable sales={filteredSales} currentPage={currentPage} />
+
+      {/* Charts Row */}
+      {stats && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <RevenueByFuelChart revenueByFuelType={stats.revenueByFuelType} />
+          <BranchesSalesChart branches={stats.topPerformingBranches} />
+        </div>
+      )}
     </div>
   );
 }

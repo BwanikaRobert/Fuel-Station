@@ -2,11 +2,14 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { mockGetDashboardData } from "@/lib/api";
 import {
   ExpenseFilters,
   ExpenseSummaryCard,
   ExpensesTable,
 } from "@/components/admin-dashboard/reports/expenses";
+import { ExpensesByCategoryChart } from "@/components/admin-dashboard";
 
 // Mock data - replace with actual API call
 const mockExpenses = [
@@ -158,6 +161,12 @@ export default function ExpensesReportsPage() {
 function ExpensesReportsContent() {
   const searchParams = useSearchParams();
 
+  // Fetch dashboard data for chart
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard", "admin"],
+    queryFn: () => mockGetDashboardData("admin"),
+  });
+
   // Get filter values from URL
   const selectedBranch = searchParams.get("branch") || "all";
   const selectedCategory = searchParams.get("category") || "all";
@@ -205,6 +214,9 @@ function ExpensesReportsContent() {
 
       {/* Expenses Table */}
       <ExpensesTable expenses={filteredExpenses} currentPage={currentPage} />
+
+      {/* Expenses by Category Chart */}
+      {stats && <ExpensesByCategoryChart data={stats.expensesByCategory} />}
     </div>
   );
 }

@@ -130,212 +130,196 @@ export default function BranchDashboardPage() {
         </Card>
       </div>
 
-      {/* Fuel Prices */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Current Fuel Prices</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="text-sm text-muted-foreground">Petrol</p>
-                <p className="text-2xl font-bold">
-                  UGX{" "}
-                  {dashboardData.currentFuelPrices.gasoline.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="text-sm text-muted-foreground">Diesel</p>
-                <p className="text-2xl font-bold">
-                  UGX {dashboardData.currentFuelPrices.diesel.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="text-sm text-muted-foreground">Kerosene</p>
-                <p className="text-2xl font-bold">
-                  UGX{" "}
-                  {dashboardData.currentFuelPrices.kerosene.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Charts */}
+      {/* Fuel Prices and Tank Levels */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Daily Sales Trend (Last 7 Days)</CardTitle>
+            <CardTitle>Current Fuel Prices</CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer
-              config={{
-                petrol: {
-                  label: "Petrol",
-                  color: "hsl(217, 91%, 60%)",
-                },
-                diesel: {
-                  label: "Diesel",
-                  color: "hsl(142, 76%, 36%)",
-                },
-                kerosene: {
-                  label: "Kerosene",
-                  color: "hsl(38, 92%, 50%)",
-                },
-              }}
-              className="h-[350px] w-full"
-            >
-              <LineChart
-                data={dashboardData.dailySales}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={(value) =>
-                    new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  }
-                />
-                <YAxis
-                  tickFormatter={(value: number) =>
-                    `${(value / 1000).toFixed(0)}K`
-                  }
-                />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                  formatter={(value: number) => `UGX ${value.toLocaleString()}`}
-                />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="petrol"
-                  stroke="hsl(217, 91%, 60%)"
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: "hsl(217, 91%, 60%)" }}
-                  activeDot={{ r: 6 }}
-                  name="Petrol"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="diesel"
-                  stroke="hsl(142, 76%, 36%)"
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: "hsl(142, 76%, 36%)" }}
-                  activeDot={{ r: 6 }}
-                  name="Diesel"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="kerosene"
-                  stroke="hsl(38, 92%, 50%)"
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: "hsl(38, 92%, 50%)" }}
-                  activeDot={{ r: 6 }}
-                  name="Kerosene"
-                />
-              </LineChart>
-            </ChartContainer>
+            <div className="grid gap-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground">Petrol</p>
+                  <p className="text-2xl font-bold">
+                    UGX{" "}
+                    {dashboardData.currentFuelPrices.gasoline.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground">Diesel</p>
+                  <p className="text-2xl font-bold">
+                    UGX{" "}
+                    {dashboardData.currentFuelPrices.diesel.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground">Kerosene</p>
+                  <p className="text-2xl font-bold">
+                    UGX{" "}
+                    {dashboardData.currentFuelPrices.kerosene.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Remaining Fuel in Tanks</CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer
-              config={{
-                remaining: {
-                  label: "Remaining (Liters)",
-                  color: "hsl(var(--chart-1))",
-                },
-              }}
-              className="h-[350px] w-full"
-            >
-              <BarChart
-                data={[
-                  {
-                    fuel: "Petrol",
-                    remaining: 25000,
-                    capacity: 30000,
-                    percentage: 83,
-                    fill: "hsl(217, 91%, 60%)",
-                  },
-                  {
-                    fuel: "Diesel",
-                    remaining: 18000,
-                    capacity: 25000,
-                    percentage: 72,
-                    fill: "hsl(142, 76%, 36%)",
-                  },
-                  {
-                    fuel: "Kerosene",
-                    remaining: 12000,
-                    capacity: 20000,
-                    percentage: 60,
-                    fill: "hsl(38, 92%, 50%)",
-                  },
-                ]}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="fuel" />
-                <YAxis
-                  tickFormatter={(value: number) =>
-                    `${(value / 1000).toFixed(0)}K`
-                  }
-                />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                  formatter={(value: number, name: string) => [
-                    `${value.toLocaleString()} L`,
-                    name === "remaining" ? "Remaining" : name,
-                  ]}
-                />
-                <Legend
-                  formatter={(value) =>
-                    value === "remaining" ? "Remaining Fuel" : value
-                  }
-                />
-                <Bar
-                  dataKey="remaining"
-                  radius={[8, 8, 0, 0]}
-                  label={(props: {
-                    x?: number;
-                    y?: number;
-                    width?: number;
-                    value?: number;
-                    percentage?: number;
-                  }) => {
-                    const { x, y, width, percentage } = props;
-                    return (
-                      <text
-                        x={(x || 0) + (width || 0) / 2}
-                        y={(y || 0) - 5}
-                        fill="currentColor"
-                        textAnchor="middle"
-                        fontSize={12}
-                      >
-                        {percentage}%
-                      </text>
-                    );
-                  }}
-                />
-              </BarChart>
-            </ChartContainer>
+            <div className="grid gap-4">
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium">Petrol</p>
+                  <span className="text-xs text-muted-foreground">
+                    83% capacity
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">25,000 L</p>
+                  <span className="text-sm text-muted-foreground">
+                    / 30,000 L
+                  </span>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500"
+                    style={{ width: "83%" }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium">Diesel</p>
+                  <span className="text-xs text-muted-foreground">
+                    72% capacity
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">18,000 L</p>
+                  <span className="text-sm text-muted-foreground">
+                    / 25,000 L
+                  </span>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-green-500"
+                    style={{ width: "72%" }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium">Kerosene</p>
+                  <span className="text-xs text-muted-foreground">
+                    60% capacity
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-2xl font-bold">12,000 L</p>
+                  <span className="text-sm text-muted-foreground">
+                    / 20,000 L
+                  </span>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full bg-yellow-500"
+                    style={{ width: "60%" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <ExpensesByCategoryChart data={dashboardData.expensesByCategory} />
+      {/* Charts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Daily Sales Trend (Last 7 Days)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer
+            config={{
+              petrol: {
+                label: "Petrol",
+                color: "hsl(217, 91%, 60%)",
+              },
+              diesel: {
+                label: "Diesel",
+                color: "hsl(142, 76%, 36%)",
+              },
+              kerosene: {
+                label: "Kerosene",
+                color: "hsl(38, 92%, 50%)",
+              },
+            }}
+            className="h-[350px] w-full"
+          >
+            <LineChart
+              data={dashboardData.dailySales}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(value) =>
+                  new Date(value).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })
+                }
+              />
+              <YAxis
+                tickFormatter={(value: number) =>
+                  `${(value / 1000).toFixed(0)}K`
+                }
+              />
+              <ChartTooltip
+                content={<ChartTooltipContent />}
+                formatter={(value: number) => `UGX ${value.toLocaleString()}`}
+              />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="petrol"
+                stroke="hsl(217, 91%, 60%)"
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: "hsl(217, 91%, 60%)" }}
+                activeDot={{ r: 6 }}
+                name="Petrol"
+              />
+              <Line
+                type="monotone"
+                dataKey="diesel"
+                stroke="hsl(142, 76%, 36%)"
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: "hsl(142, 76%, 36%)" }}
+                activeDot={{ r: 6 }}
+                name="Diesel"
+              />
+              <Line
+                type="monotone"
+                dataKey="kerosene"
+                stroke="hsl(38, 92%, 50%)"
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: "hsl(38, 92%, 50%)" }}
+                activeDot={{ r: 6 }}
+                name="Kerosene"
+              />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 }
