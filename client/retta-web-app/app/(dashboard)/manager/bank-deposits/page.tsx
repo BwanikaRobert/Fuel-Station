@@ -5,7 +5,7 @@ import { mockGetBankDeposits } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import {
   BankDepositSummaryCards,
-  RecordBankDepositForm,
+  RecordBankDepositModal,
   BankDepositHistoryTable,
   RecentBankDeposits,
 } from "@/components/manager/bank-deposits";
@@ -42,11 +42,14 @@ export default function BankDepositsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Bank Deposits</h1>
-        <p className="text-muted-foreground">
-          Record and track bank deposits for your branch
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Bank Deposits</h1>
+          <p className="text-muted-foreground">
+            Record and track bank deposits for your branch
+          </p>
+        </div>
+        <RecordBankDepositModal userId={user!.id} branchId={user!.branchId!} />
       </div>
 
       {/* Summary Cards */}
@@ -55,14 +58,8 @@ export default function BankDepositsPage() {
         totalDeposits={totalDeposits}
       />
 
-      {/* Main Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Form */}
-        <RecordBankDepositForm userId={user!.id} branchId={user!.branchId!} />
-
-        {/* Recent Deposits */}
-        <RecentBankDeposits deposits={deposits || []} />
-      </div>
+      {/* Recent Deposits */}
+      <RecentBankDeposits deposits={deposits || []} />
 
       {/* History Table */}
       <BankDepositHistoryTable deposits={deposits || []} />

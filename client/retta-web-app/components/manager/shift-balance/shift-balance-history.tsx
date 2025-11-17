@@ -52,7 +52,6 @@ export function ShiftBalanceHistory({
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <ClipboardList className="h-5 w-5 text-primary" />
           <CardTitle>Shift Balance History</CardTitle>
         </div>
         <CardDescription>Recent shift balance records</CardDescription>

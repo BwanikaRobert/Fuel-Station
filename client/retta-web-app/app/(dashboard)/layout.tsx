@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Sidebar } from '@/components/sidebar';
-import { Header } from '@/components/header';
-import { ProtectedRoute } from '@/components/protected-route';
+import { Sidebar } from "@/components/sidebar";
+import { Header } from "@/components/header";
+import { ProtectedRoute } from "@/components/protected-route";
 
 export default function DashboardLayout({
   children,
@@ -16,7 +16,9 @@ export default function DashboardLayout({
         <div className="flex flex-1 flex-col overflow-hidden lg:ml-72">
           <Header />
           <main className="flex-1 overflow-y-auto">
-            <div className="container mx-auto p-6 lg:p-8">{children}</div>
+            <div className="container max-w-full mx-auto p-6 lg:p-8">
+              {children}
+            </div>
           </main>
         </div>
       </div>

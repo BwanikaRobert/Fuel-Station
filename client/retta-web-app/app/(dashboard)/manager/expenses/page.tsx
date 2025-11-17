@@ -5,7 +5,7 @@ import { mockGetExpenses } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import {
   ExpenseSummaryCards,
-  RecordExpenseForm,
+  RecordExpenseModal,
   ExpenseHistoryTable,
 } from "@/components/manager/expenses";
 
@@ -27,6 +27,16 @@ export default function ExpensesPage() {
       )
       .reduce((sum, expense) => sum + expense.amount, 0) || 0;
 
+  // Calculate unverified expenses from the last 2 days
+  const twoDaysAgo = new Date();
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+  const twoDaysAgoStr = twoDaysAgo.toISOString().split("T")[0];
+
+  const unverifiedExpenses =
+    expenses
+      ?.filter((expense) => !expense.verified && expense.date >= twoDaysAgoStr)
+      .reduce((sum, expense) => sum + expense.amount, 0) || 0;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -41,18 +51,17 @@ export default function ExpensesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
+      <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Manage expenses</h1>
+        <RecordExpenseModal userId={user!.id} branchId={user!.branchId!} />
       </div>
 
       {/* Summary Cards */}
       <ExpenseSummaryCards
         todayExpenses={todayExpenses}
         totalExpenses={totalExpenses}
+        unverifiedExpenses={unverifiedExpenses}
       />
-
-      {/* Form */}
-      <RecordExpenseForm userId={user!.id} branchId={user!.branchId!} />
 
       {/* History Table */}
       <ExpenseHistoryTable expenses={expenses || []} />

@@ -35,7 +35,7 @@ export function ExpenseHistoryTable({ expenses }: ExpenseHistoryTableProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Category</TableHead>
+                <TableHead> Status</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Recorded By</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
@@ -49,8 +49,15 @@ export function ExpenseHistoryTable({ expenses }: ExpenseHistoryTableProps) {
                       {new Date(expense.date).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="capitalize">
-                        {expense.category}
+                      <Badge
+                        variant={expense.verified ? "default" : "secondary"}
+                        className={
+                          expense.verified
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-orange-600 hover:bg-orange-700"
+                        }
+                      >
+                        {expense.verified ? "Verified" : "Unverified"}
                       </Badge>
                     </TableCell>
                     <TableCell>{expense.description}</TableCell>

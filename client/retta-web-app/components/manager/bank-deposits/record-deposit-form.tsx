@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -50,11 +43,13 @@ const companyAccounts = [
 interface RecordBankDepositFormProps {
   userId: string;
   branchId: string;
+  onSuccess?: () => void;
 }
 
 export function RecordBankDepositForm({
   userId,
   branchId,
+  onSuccess,
 }: RecordBankDepositFormProps) {
   const [successMessage, setSuccessMessage] = useState("");
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
@@ -91,6 +86,7 @@ export function RecordBankDepositForm({
         bankName: "",
       });
       setTimeout(() => setSuccessMessage(""), 5000);
+      onSuccess?.();
     },
   });
 
@@ -138,159 +134,145 @@ export function RecordBankDepositForm({
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Record Bank Deposit</CardTitle>
-          <CardDescription>
-            Enter bank deposit details for your branch
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input id="date" type="date" {...register("date")} />
-                {errors.date && (
-                  <p className="text-sm text-destructive">
-                    {errors.date.message}
-                  </p>
-                )}
-              </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="date">Date</Label>
+            <Input id="date" type="date" {...register("date")} />
+            {errors.date && (
+              <p className="text-sm text-destructive">{errors.date.message}</p>
+            )}
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount (UGX)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="1"
-                  placeholder="1500000"
-                  {...register("amount", { valueAsNumber: true })}
-                />
-                {errors.amount && (
-                  <p className="text-sm text-destructive">
-                    {errors.amount.message}
-                  </p>
-                )}
-              </div>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="amount">Amount (UGX)</Label>
+            <Input
+              id="amount"
+              type="number"
+              step="1"
+              placeholder="1500000"
+              {...register("amount", { valueAsNumber: true })}
+            />
+            {errors.amount && (
+              <p className="text-sm text-destructive">
+                {errors.amount.message}
+              </p>
+            )}
+          </div>
+        </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="bankName">Bank Name</Label>
-                <Select
-                  value={watch("bankName")}
-                  onValueChange={(value) => setValue("bankName", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a bank" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {banks.map((bank) => (
-                      <SelectItem key={bank.value} value={bank.label}>
-                        {bank.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.bankName && (
-                  <p className="text-sm text-destructive">
-                    {errors.bankName.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="referenceNumber">Company Account Number</Label>
-                <Select
-                  value={watch("referenceNumber")}
-                  onValueChange={(value) => setValue("referenceNumber", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select account number" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {companyAccounts.map((account) => (
-                      <SelectItem key={account.value} value={account.value}>
-                        {account.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.referenceNumber && (
-                  <p className="text-sm text-destructive">
-                    {errors.referenceNumber.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="receiptImage">Receipt Image (Optional)</Label>
-              <div className="flex flex-col gap-4">
-                {!receiptPreview ? (
-                  <div className="relative">
-                    <Input
-                      id="receiptImage"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      className="hidden"
-                    />
-                    <Label
-                      htmlFor="receiptImage"
-                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          <span className="font-semibold">Click to upload</span>{" "}
-                          receipt image
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          PNG, JPG, JPEG (MAX. 5MB)
-                        </p>
-                      </div>
-                    </Label>
-                  </div>
-                ) : (
-                  <div className="relative rounded-lg border overflow-hidden">
-                    <Image
-                      src={receiptPreview}
-                      alt="Receipt preview"
-                      width={800}
-                      height={400}
-                      className="w-full h-48 object-cover"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2"
-                      onClick={removeReceipt}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2">
-                      <p className="text-xs truncate">{receiptFile?.name}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={createMutation.isPending}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="bankName">Bank Name</Label>
+            <Select
+              value={watch("bankName")}
+              onValueChange={(value) => setValue("bankName", value)}
             >
-              {createMutation.isPending
-                ? "Recording..."
-                : "Record Bank Deposit"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a bank" />
+              </SelectTrigger>
+              <SelectContent>
+                {banks.map((bank) => (
+                  <SelectItem key={bank.value} value={bank.label}>
+                    {bank.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.bankName && (
+              <p className="text-sm text-destructive">
+                {errors.bankName.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="referenceNumber">Company Account Number</Label>
+            <Select
+              value={watch("referenceNumber")}
+              onValueChange={(value) => setValue("referenceNumber", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select account number" />
+              </SelectTrigger>
+              <SelectContent>
+                {companyAccounts.map((account) => (
+                  <SelectItem key={account.value} value={account.value}>
+                    {account.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.referenceNumber && (
+              <p className="text-sm text-destructive">
+                {errors.referenceNumber.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="receiptImage">Receipt Image (Optional)</Label>
+          <div className="flex flex-col gap-4">
+            {!receiptPreview ? (
+              <div className="relative">
+                <Input
+                  id="receiptImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Label
+                  htmlFor="receiptImage"
+                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold">Click to upload</span>{" "}
+                      receipt image
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG, JPEG (MAX. 5MB)
+                    </p>
+                  </div>
+                </Label>
+              </div>
+            ) : (
+              <div className="relative rounded-lg border overflow-hidden">
+                <Image
+                  src={receiptPreview}
+                  alt="Receipt preview"
+                  width={800}
+                  height={400}
+                  className="w-full h-48 object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2"
+                  onClick={removeReceipt}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-2">
+                  <p className="text-xs truncate">{receiptFile?.name}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={createMutation.isPending}
+        >
+          {createMutation.isPending ? "Recording..." : "Record Bank Deposit"}
+        </Button>
+      </form>
     </div>
   );
 }

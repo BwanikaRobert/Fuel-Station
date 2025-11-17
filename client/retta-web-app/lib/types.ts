@@ -132,6 +132,9 @@ export interface Expense {
   description: string;
   recordedBy: string; // manager or admin ID
   recordedByName?: string;
+  verified: boolean; // verified by accountant
+  verifiedBy?: string; // accountant ID
+  verifiedAt?: string;
   createdAt: string;
 }
 
@@ -180,6 +183,7 @@ export interface DashboardStats {
   totalRevenue: number;
   totalExpenses: number;
   netProfit: number;
+  unverifiedExpenses?: number; // Total amount of unverified expenses from last 2 days
   currentFuelPrices: {
     gasoline: number;
     diesel: number;
