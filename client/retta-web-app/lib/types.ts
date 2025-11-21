@@ -178,6 +178,44 @@ export interface FuelDelivery {
   createdAt: string;
 }
 
+// Fuel Transfer Types
+export type TransferStatus =
+  | "pending"
+  | "in-transit"
+  | "completed"
+  | "cancelled";
+
+export interface FuelTransfer {
+  id: string;
+  fromBranchId: string;
+  fromBranchName?: string;
+  toBranchId: string;
+  toBranchName?: string;
+  fuelType: FuelType;
+  meterReadingBefore: number;
+  meterReadingAfter: number;
+  quantityTransferred: number; // calculated: after - before
+  transferDate: string;
+  status: TransferStatus;
+  vehicleNumber?: string;
+  driverName?: string;
+  notes?: string;
+  initiatedBy: string;
+  initiatedByName?: string;
+  createdAt: string;
+}
+
+export interface FuelTransferFormData {
+  toBranchId: string;
+  fuelType: FuelType;
+  meterReadingBefore: number;
+  meterReadingAfter: number;
+  transferDate: string;
+  vehicleNumber?: string;
+  driverName?: string;
+  notes?: string;
+}
+
 // Dashboard Statistics Types
 export interface DashboardStats {
   totalRevenue: number;

@@ -6,6 +6,7 @@ import {
   Expense,
   BankDeposit,
   FuelDelivery,
+  FuelTransfer,
   DashboardStats,
   UserRole,
   FuelType,
@@ -14,6 +15,7 @@ import {
   BankDepositFormData,
   FuelDeliveryFormData,
   AcknowledgeFuelFormData,
+  FuelTransferFormData,
 } from "./types";
 
 // Simulated network delay
@@ -857,6 +859,56 @@ export async function mockAcknowledgeFuelDelivery(
   };
 
   return mockFuelDeliveries[index];
+}
+
+// Fuel Transfers
+const mockFuelTransfers: FuelTransfer[] = [];
+
+export async function mockGetFuelTransfers(
+  branchId?: string
+): Promise<FuelTransfer[]> {
+  await delay();
+  if (!branchId) return mockFuelTransfers;
+  return mockFuelTransfers.filter(
+    (t) => t.fromBranchId === branchId || t.toBranchId === branchId
+  );
+}
+
+export async function mockCreateFuelTransfer(
+  data: FuelTransferFormData,
+  userId: string,
+  fromBranchId: string
+): Promise<FuelTransfer> {
+  await delay(800);
+
+  const fromBranch = mockBranches.find((b) => b.id === fromBranchId);
+  const toBranch = mockBranches.find((b) => b.id === data.toBranchId);
+  const user = mockUsers.find((u) => u.id === userId);
+
+  const quantityTransferred = data.meterReadingAfter - data.meterReadingBefore;
+
+  const newTransfer: FuelTransfer = {
+    id: `transfer-${Date.now()}`,
+    fromBranchId,
+    fromBranchName: fromBranch?.name,
+    toBranchId: data.toBranchId,
+    toBranchName: toBranch?.name,
+    fuelType: data.fuelType,
+    meterReadingBefore: data.meterReadingBefore,
+    meterReadingAfter: data.meterReadingAfter,
+    quantityTransferred,
+    transferDate: data.transferDate,
+    status: "pending",
+    vehicleNumber: data.vehicleNumber,
+    driverName: data.driverName,
+    notes: data.notes,
+    initiatedBy: userId,
+    initiatedByName: user?.name,
+    createdAt: new Date().toISOString(),
+  };
+
+  mockFuelTransfers.push(newTransfer);
+  return newTransfer;
 }
 
 // Managers (for dropdown in branch form)

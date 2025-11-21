@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mockCreateShiftBalance } from "@/lib/api";
+import { mockCreateShiftBalance, mockCreateExpense } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,12 +30,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { FuelPump, ShiftType } from "@/lib/types";
+import { FuelPump, ShiftType, ExpenseFormData } from "@/lib/types";
+import { Plus, Trash2, DollarSign } from "lucide-react";
 
 interface PumpReading {
   pumpId: string;
   closingMeter: number;
   pricePerLiter: number;
+}
+
+interface ExpenseItem {
+  id: string;
+  amount: number;
+  category: string;
+  description: string;
 }
 
 interface RecordShiftBalanceFormProps {
@@ -55,6 +63,14 @@ const fuelTypeLabels: Record<string, string> = {
   kerosene: "Kerosene",
 };
 
+const expenseCategories = [
+  { value: "utilities", label: "Utilities" },
+  { value: "salaries", label: "Salaries" },
+  { value: "maintenance", label: "Maintenance" },
+  { value: "supplies", label: "Supplies" },
+  { value: "other", label: "Other" },
+];
+
 export function RecordShiftBalanceForm({
   pumps,
   userId,
@@ -64,12 +80,16 @@ export function RecordShiftBalanceForm({
   const [shiftType, setShiftType] = useState<ShiftType>("morning");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [pumpReadings, setPumpReadings] = useState<Record<string, number>>({});
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
+  const [expenseAmount, setExpenseAmount] = useState("");
+  const [expenseCategory, setExpenseCategory] = useState("");
+  const [expenseDescription, setExpenseDescription] = useState("");
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
     mutationFn: async (readings: PumpReading[]) => {
       // Create shift balance for each pump reading
-      const promises = readings.map((reading) =>
+      const shiftPromises = readings.map((reading) =>
         mockCreateShiftBalance(
           {
             pumpId: reading.pumpId,
@@ -82,19 +102,39 @@ export function RecordShiftBalanceForm({
           branchId
         )
       );
-      return Promise.all(promises);
+
+      // Create expenses if any
+      const expensePromises = expenses.map((expense) =>
+        mockCreateExpense(
+          {
+            date,
+            amount: expense.amount,
+            category: expense.category,
+            description: expense.description,
+          },
+          userId,
+          branchId
+        )
+      );
+
+      return Promise.all([...shiftPromises, ...expensePromises]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shift-balances"] });
       queryClient.invalidateQueries({ queryKey: ["pumps"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      toast.success("Shift balances recorded successfully!", {
-        description: `All pump readings for ${shiftType} shift have been saved.`,
+      queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      toast.success("Shift balances and expenses recorded successfully!", {
+        description: `${shiftType} shift sales and ${expenses.length} expense(s) have been saved.`,
       });
       setPumpReadings({});
+      setExpenses([]);
+      setExpenseAmount("");
+      setExpenseCategory("");
+      setExpenseDescription("");
     },
     onError: (error: Error) => {
-      toast.error("Failed to record shift balances", {
+      toast.error("Failed to record shift data", {
         description: error.message || "Please try again later.",
       });
     },
@@ -147,6 +187,52 @@ export function RecordShiftBalanceForm({
     return pumps.reduce((total, pump) => {
       return total + calculateSalesAmount(pump);
     }, 0);
+  };
+
+  const calculateTotalExpenses = () => {
+    return expenses.reduce((total, exp) => total + exp.amount, 0);
+  };
+
+  const calculateCashAtHand = () => {
+    return calculateTotalSales() - calculateTotalExpenses();
+  };
+
+  const addExpense = () => {
+    const amount = parseFloat(expenseAmount);
+    if (!amount || amount <= 0) {
+      toast.error("Invalid amount", {
+        description: "Please enter a valid expense amount.",
+      });
+      return;
+    }
+    if (!expenseCategory) {
+      toast.error("Category required", {
+        description: "Please select an expense category.",
+      });
+      return;
+    }
+    if (!expenseDescription || expenseDescription.length < 3) {
+      toast.error("Description required", {
+        description: "Please enter a description (min 3 characters).",
+      });
+      return;
+    }
+
+    const newExpense: ExpenseItem = {
+      id: `temp-${Date.now()}`,
+      amount,
+      category: expenseCategory,
+      description: expenseDescription,
+    };
+
+    setExpenses([...expenses, newExpense]);
+    setExpenseAmount("");
+    setExpenseCategory("");
+    setExpenseDescription("");
+  };
+
+  const removeExpense = (id: string) => {
+    setExpenses(expenses.filter((exp) => exp.id !== id));
   };
 
   return (
@@ -399,14 +485,172 @@ export function RecordShiftBalanceForm({
           )}
         </div>
 
+        {/* Expenses Section */}
+        <div className="space-y-4 pt-6 border-t">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg">Shift Expenses</h3>
+          </div>
+
+          {/* Add Expense Form */}
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="space-y-2">
+              <Label htmlFor="expense-amount">Amount (UGX)</Label>
+              <Input
+                id="expense-amount"
+                type="number"
+                step="1"
+                placeholder="50000"
+                value={expenseAmount}
+                onChange={(e) => setExpenseAmount(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expense-category">Category</Label>
+              <Select
+                value={expenseCategory}
+                onValueChange={setExpenseCategory}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {expenseCategories.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expense-description">Description</Label>
+              <Input
+                id="expense-description"
+                placeholder="Enter description"
+                value={expenseDescription}
+                onChange={(e) => setExpenseDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="invisible">Action</Label>
+              <Button
+                type="button"
+                onClick={addExpense}
+                className="w-full"
+                variant="secondary"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Expense
+              </Button>
+            </div>
+          </div>
+
+          {/* Expenses List */}
+          {expenses.length > 0 && (
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-center">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {expenses.map((expense) => (
+                    <TableRow key={expense.id}>
+                      <TableCell>
+                        <Badge variant="secondary" className="capitalize">
+                          {expense.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{expense.description}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        UGX {expense.amount.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeExpense(expense.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+                <tfoot className="bg-muted/50 font-semibold">
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-right">
+                      Total Expenses:
+                    </TableCell>
+                    <TableCell className="text-right text-red-600 text-base">
+                      UGX {calculateTotalExpenses().toLocaleString()}
+                    </TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                </tfoot>
+              </Table>
+            </div>
+          )}
+
+          {/* Cash Summary */}
+          {calculateTotalSales() > 0 && (
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="pt-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Total Sales:</span>
+                    <span className="text-lg font-bold text-green-600">
+                      UGX {calculateTotalSales().toLocaleString()}
+                    </span>
+                  </div>
+                  {expenses.length > 0 && (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">
+                          Total Expenses:
+                        </span>
+                        <span className="text-lg font-bold text-red-600">
+                          UGX {calculateTotalExpenses().toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="pt-3 border-t border-primary/20">
+                        <div className="flex justify-between items-center">
+                          <span className="text-base font-semibold">
+                            Cash at Hand (to be banked):
+                          </span>
+                          <span className="text-2xl font-bold text-primary">
+                            UGX {calculateCashAtHand().toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
         {/* Submit Button */}
         <div className="flex justify-end gap-3">
           <Button
             type="button"
             variant="outline"
-            onClick={() => setPumpReadings({})}
+            onClick={() => {
+              setPumpReadings({});
+              setExpenses([]);
+            }}
             disabled={
-              createMutation.isPending || Object.keys(pumpReadings).length === 0
+              createMutation.isPending ||
+              (Object.keys(pumpReadings).length === 0 && expenses.length === 0)
             }
           >
             Clear All
